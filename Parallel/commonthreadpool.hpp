@@ -5,8 +5,8 @@
 * Description : Common class for Managing threads.
 ********************************************************************************/
 
-#ifndef _COMMONTHREADPOOL_HPP_
-#define _COMMONTHREADPOOL_HPP_
+#ifndef COMMONTHREADPOOL_HPP
+#define COMMONTHREADPOOL_HPP
 
 #include <string>
 #include <vector>
@@ -107,4 +107,4 @@ private:
 
 
 
-#endif // _COMMONTHREADPOOL_HPP_
+#endif // COMMONTHREADPOOL_HPP
