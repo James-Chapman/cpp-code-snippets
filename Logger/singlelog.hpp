@@ -16,6 +16,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <thread>
 #ifdef _WIN32
 #include <Windows.h>
 #else
