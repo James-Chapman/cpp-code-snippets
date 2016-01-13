@@ -94,12 +94,12 @@ namespace FourtyTwo
             LeaveCriticalSection(m_lock);
         }
 #else
-        ScopeLock(std::mutex * _mtx)
+        ScopedLogLock(std::mutex * _mtx)
         {
             m_lock = _mtx;
             m_lock->lock();
         }
-        ~ScopeLock()
+        ~ScopedLogLock()
         {
             m_lock->unlock();
         }
