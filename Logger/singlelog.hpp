@@ -1,8 +1,25 @@
 /*******************************************************************************
-* Author      : James Chapman
-* License     : BSD
-* Date        : 17 November 2014
-* Description : Singlton Logger C++11
+* Copyright (c) 2014 James Chapman
+*
+*
+* Permission is hereby granted, free of charge, to any person obtaining a copy
+* of this software and associated documentation files (the "Software"), to deal
+* in the Software without restriction, including without limitation the rights
+* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the Software is
+* furnished to do so, subject to the following conditions:
+*
+* 1. The above copyright notice and this permission notice shall be included in
+*    all copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+* SOFTWARE.
+*
 ********************************************************************************/
 
 #pragma once
@@ -33,7 +50,7 @@ namespace FourtyTwo
     /**
     * Levels of logging available
     */
-    enum LogLevel
+    typedef enum _LogLevel
     {
         L_TRACE = 100,
         L_DEBUG = 200,
@@ -43,7 +60,7 @@ namespace FourtyTwo
         L_ERROR = 600,
         L_CRITICAL = 700,
         L_OFF = 1000
-    };
+    } LogLevel;
 
     /**
     * Get current date/time, format is YYYY-MM-DD HH:mm:ss
@@ -91,6 +108,7 @@ namespace FourtyTwo
         ~ScopedLogLock()
         {
             LeaveCriticalSection(m_lock);
+            m_lock = nullptr;
         }
 #else
         ScopeLock(std::mutex * _mtx)
@@ -101,6 +119,7 @@ namespace FourtyTwo
         ~ScopeLock()
         {
             m_lock->unlock();
+            m_lock = nullptr;
         }
 #endif
     private:
@@ -443,6 +462,9 @@ namespace FourtyTwo
                 {
                     break;
                 }
+                
+                // Sleep, otherwise this loop just eats CPU cycles for breakfast
+                std::this_thread::sleep_for(std::chrono::milliseconds(50));
             }
         }
 
@@ -451,7 +473,6 @@ namespace FourtyTwo
         */
         void fstreamWriter()
         {
-            //
             while (1)
             {
                 bool fstreamLogEmpty = m_fstreamLogDeque.empty();
@@ -474,6 +495,9 @@ namespace FourtyTwo
                 {
                     break;
                 }
+                
+                // Sleep, otherwise this loop just eats CPU cycles for breakfast
+                std::this_thread::sleep_for(std::chrono::milliseconds(50));
             }
         }
 
