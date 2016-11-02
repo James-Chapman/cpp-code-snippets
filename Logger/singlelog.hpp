@@ -33,6 +33,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <thread>
 #ifdef _WIN32
 #include <Windows.h>
 #else
@@ -111,12 +112,12 @@ namespace FourtyTwo
             m_lock = nullptr;
         }
 #else
-        ScopeLock(std::mutex * _mtx)
+        ScopedLogLock(std::mutex * _mtx)
         {
             m_lock = _mtx;
             m_lock->lock();
         }
-        ~ScopeLock()
+        ~ScopedLogLock()
         {
             m_lock->unlock();
             m_lock = nullptr;
