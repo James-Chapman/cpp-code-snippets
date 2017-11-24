@@ -32,74 +32,61 @@
 #include <mutex>
 #include <condition_variable>
 
-namespace ThreadTesting
+namespace Uplinkzero
+{
+
+namespace Common
 {
 
 /**
-* Template struct containing thread function and 2 parameters
+* Edit this struct to contain required params
 */
-template<class T1 = void, class T2 = void>
-struct ThreadFunction
+struct FunctionParams
 {
-    int params = 2;
-    std::function<void(T1 &, T2 &)> function_name;
-    T1 function_param1;
-    T2 function_param2;
-    void executeFunction()
-    {
-        function_name(function_param1, function_param2);
-    }
+    unsigned long i;
 };
-
 
 /**
-* Template struct containing thread function and 1 parameter
+* Template struct containing thread function and parameters
 */
-template<class T1>
-struct ThreadFunction<T1, void>
+class ThreadData
 {
-    int params = 1;
-    std::function<void(T1 &)> function_name;
-    T1 function_param1;
+public:
+    ThreadData() {};
+    virtual ~ThreadData() {};
+
+    void setThreadFunction(std::function<void(FunctionParams &)> f)
+    {
+        m_function_name = f;
+    }
+
+    void setThreadFunctionParams(FunctionParams p)
+    {
+        m_function_params = p;
+    }
+
     void executeFunction()
     {
-        function_name(function_param1);
+        m_function_name(m_function_params);
     }
+
+private:
+    std::function<void(FunctionParams &)> m_function_name;
+    FunctionParams m_function_params;
 };
 
 
-/**
-* Template struct containing thread function and no parameters
-*/
-template<>
-struct ThreadFunction<void, void>
-{
-    int params = 0;
-    std::function<void()> function_name;
-    void executeFunction()
-    {
-        function_name();
-    }
-};
-
-
-typedef ThreadTesting::ThreadFunction<> ThreadFunction_noParam;
-typedef ThreadTesting::ThreadFunction<int> ThreadFunction_p1Int;
-typedef ThreadTesting::ThreadFunction<int, int> ThreadFunction_p1Int_p2Int;
-typedef ThreadTesting::ThreadFunction<std::string> ThreadFunction_p1String;
-typedef ThreadTesting::ThreadFunction<std::string, std::string> ThreadFunction_p1String_p2String;
-
-
-template<class T>
+template<typename T>
 class ThreadPool;
 
 /**
 * Worker
 */
-template<class T>
-class Worker {
+template<typename T>
+class Worker
+{
 public:
-    Worker(ThreadPool<T> &s) : m_threadPool(s) { }
+    Worker(ThreadPool<T> &s) : m_threadPool(s) {}
     void operator()()
     {
         T task;
@@ -124,7 +111,7 @@ public:
             }
 
             // Do the work
-            task.function_name(task.function_param);
+            task.executeFunction();
         }
     }
 
@@ -136,8 +123,9 @@ private:
 /**
 * Threadpool
 */
-template<class T>
-class ThreadPool {
+template<typename T>
+class ThreadPool
+{
 public:
     ThreadPool(size_t _threads) : stop(false)
     {
@@ -175,7 +163,9 @@ private:
     bool stop;
 };
 
-} // end namespace Testing
+} // end namespace Common
+
+} // end namespace Uplinkzero
 
 
 

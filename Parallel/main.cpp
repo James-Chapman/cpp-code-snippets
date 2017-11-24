@@ -1,7 +1,6 @@
 /*******************************************************************************
 * Copyright (c) 2014 James Chapman
 *
-*
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
 * in the Software without restriction, including without limitation the rights
@@ -25,34 +24,35 @@
 #include <iostream>
 #include <random>
 
-#include "CommonThreadPool.hpp"
+#include "commonthreadpool.hpp"
 
-void functionForThreadToRun(int _i)
+
+void functionForThreadToRun(Uplinkzero::Common::FunctionParams &p)
 {
-    std::cout << "Thread ID: " << std::this_thread::get_id() << " running with parameter: " << _i << std::endl;
+    std::cout << "Thread ID: " << std::this_thread::get_id() << " running with parameter: " << p.i << std::endl;
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }
 
 int main()
 {
-    ThreadFunction_p1Int ThreadData;
-
     // random number generator
     std::random_device rd;
     std::mt19937 urng(rd());
 
     // Create a threadpool with 5 threads
-    ::ThreadTesting::ThreadPool<ThreadData> threadPool(5);
-        
+    ::Uplinkzero::Common::ThreadPool<Uplinkzero::Common::ThreadData> threadPool(5);
+
     // Pointer to the function we want the threads in the pool to execute
-    auto pFunctionForThreadToRun = functionForThreadToRun;
+    auto pFunctionForThreadToRun = std::function<void(Uplinkzero::Common::FunctionParams &)>(functionForThreadToRun);
 
     // enque tasks into the threadpool
     for (int i = 0; i < 1000; i++)
     {
-        ThreadData td;
-        td.function_name = pFunctionForThreadToRun;
-        td.function_param = urng();
+        Uplinkzero::Common::FunctionParams params;
+        params.i = urng();
+        Uplinkzero::Common::ThreadData td;
+        td.setThreadFunction(pFunctionForThreadToRun);
+        td.setThreadFunctionParams(params);
         threadPool.enqueue(td);
     }
 

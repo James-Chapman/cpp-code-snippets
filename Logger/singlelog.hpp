@@ -463,7 +463,7 @@ namespace FourtyTwo
                 {
                     break;
                 }
-                
+
                 // Sleep, otherwise this loop just eats CPU cycles for breakfast
                 std::this_thread::sleep_for(std::chrono::milliseconds(50));
             }
@@ -496,7 +496,7 @@ namespace FourtyTwo
                 {
                     break;
                 }
-                
+
                 // Sleep, otherwise this loop just eats CPU cycles for breakfast
                 std::this_thread::sleep_for(std::chrono::milliseconds(50));
             }
