@@ -52,10 +52,12 @@ struct FunctionParams
 class ThreadData
 {
 public:
-    ThreadData() {};
+    ThreadData()
+        : m_function_params()
+    {};
     virtual ~ThreadData() {};
 
-    void setThreadFunction(std::function<void(FunctionParams &)> f)
+    void setThreadFunction(const std::function<void(FunctionParams &)>& f)
     {
         m_function_name = f;
     }
@@ -86,7 +88,7 @@ template<typename T>
 class Worker
 {
 public:
-    Worker(ThreadPool<T> &s) : m_threadPool(s) {}
+    explicit Worker(ThreadPool<T> &s) : m_threadPool(s) {}
     void operator()()
     {
         T task;
@@ -127,7 +129,7 @@ template<typename T>
 class ThreadPool
 {
 public:
-    ThreadPool(size_t _threads) : stop(false)
+    explicit ThreadPool(size_t _threads) : stop(false)
     {
         for (size_t i = 0; i < _threads; ++i)
         {

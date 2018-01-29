@@ -101,7 +101,7 @@ namespace FourtyTwo
     {
     public:
 #ifdef _WIN32
-        ScopedLogLock(CRITICAL_SECTION * _cs)
+        explicit ScopedLogLock(CRITICAL_SECTION * _cs)
         {
             m_lock = _cs;
             EnterCriticalSection(m_lock);
@@ -193,16 +193,16 @@ namespace FourtyTwo
         /**
         * Set the path to the log file
         */
-        void setLogFilePath(std::string _filePath)
+        void setLogFilePath(const std::string& _filePath)
         {
             m_filePath = _filePath;
-            m_fileOut.open(m_filePath, std::ios_base::out | std::ios_base::out);
+            m_fileOut.open(m_filePath, std::ios_base::out);
         }
 
         /**
         * Set the path to the log file
         */
-        void setLogFilePath(std::wstring _filePath)
+        void setLogFilePath(const std::wstring& _filePath)
         {
             setLogFilePath(converter.to_bytes(_filePath));
         }
@@ -211,7 +211,7 @@ namespace FourtyTwo
         * Log TRACE level messages
         */
 #ifdef _DEBUG
-        void trace(std::string _mod, std::string _msg)
+        void trace(const std::string& _mod, const std::string& _msg)
         {
             std::string level = "TRACE";
             std::string line = makeLogLine(level, _mod, _msg);
@@ -232,7 +232,7 @@ namespace FourtyTwo
         /**
         * Log TRACE level messages
         */
-        void trace(std::wstring _mod, std::wstring _msg)
+        void trace(const std::wstring& _mod, const std::wstring& _msg)
         {
             trace(converter.to_bytes(_mod), converter.to_bytes(_msg));
         }
@@ -240,7 +240,7 @@ namespace FourtyTwo
         /**
         * Log DEBUG level messages
         */
-        void debug(std::string _mod, std::string _msg)
+        void debug(const std::string& _mod, const std::string& _msg)
         {
             std::string level = "DEBUG";
             std::string line = makeLogLine(level, _mod, _msg);
@@ -257,7 +257,7 @@ namespace FourtyTwo
         /**
         * Log DEBUG level messages
         */
-        void debug(std::wstring _mod, std::wstring _msg)
+        void debug(const std::wstring& _mod, const std::wstring& _msg)
         {
             debug(converter.to_bytes(_mod), converter.to_bytes(_msg));
         }
@@ -265,7 +265,7 @@ namespace FourtyTwo
         /**
         * Log INFO level messages
         */
-        void info(std::string _mod, std::string _msg)
+        void info(const std::string& _mod, const std::string& _msg)
         {
             std::string level = "INFO";
             std::string line = makeLogLine(level, _mod, _msg);
@@ -282,7 +282,7 @@ namespace FourtyTwo
         /**
         * Log INFO level messages
         */
-        void info(std::wstring _mod, std::wstring _msg)
+        void info(const std::wstring& _mod, const std::wstring& _msg)
         {
             info(converter.to_bytes(_mod), converter.to_bytes(_msg));
         }
@@ -290,7 +290,7 @@ namespace FourtyTwo
         /**
         * Log NOTICE level messages
         */
-        void notice(std::string _mod, std::string _msg)
+        void notice(const std::string& _mod, const std::string& _msg)
         {
             std::string level = "NOTICE";
             std::string line = makeLogLine(level, _mod, _msg);
@@ -307,7 +307,7 @@ namespace FourtyTwo
         /**
         * Log NOTICE level messages
         */
-        void notice(std::wstring _mod, std::wstring _msg)
+        void notice(const std::wstring& _mod, const std::wstring& _msg)
         {
             notice(converter.to_bytes(_mod), converter.to_bytes(_msg));
         }
@@ -315,7 +315,7 @@ namespace FourtyTwo
         /**
         * Log WARNING level messages
         */
-        void warning(std::string _mod, std::string _msg)
+        void warning(const std::string& _mod, const std::string& _msg)
         {
             std::string level = "WARNING";
             std::string line = makeLogLine(level, _mod, _msg);
@@ -332,7 +332,7 @@ namespace FourtyTwo
         /**
         * Log WARNING level messages
         */
-        void warning(std::wstring _mod, std::wstring _msg)
+        void warning(const std::wstring& _mod, const std::wstring& _msg)
         {
             warning(converter.to_bytes(_mod), converter.to_bytes(_msg));
         }
@@ -340,7 +340,7 @@ namespace FourtyTwo
         /**
         * Log ERROR level messages
         */
-        void error(std::string _mod, std::string _msg)
+        void error(const std::string& _mod, const std::string& _msg)
         {
             std::string level = "ERROR";
             std::string line = makeLogLine(level, _mod, _msg);
@@ -357,7 +357,7 @@ namespace FourtyTwo
         /**
         * Log ERROR level messages
         */
-        void error(std::wstring _mod, std::wstring _msg)
+        void error(const std::wstring& _mod, const std::wstring& _msg)
         {
             error(converter.to_bytes(_mod), converter.to_bytes(_msg));
         }
@@ -365,7 +365,7 @@ namespace FourtyTwo
         /**
         * Log CRITICAL level messages
         */
-        void critical(std::string _mod, std::string _msg)
+        void critical(const std::string& _mod, const std::string& _msg)
         {
             std::string level = "CRITICAL";
             std::string line = makeLogLine(level, _mod, _msg);
@@ -382,7 +382,7 @@ namespace FourtyTwo
         /**
         * Log CRITICAL level messages
         */
-        void critical(std::wstring _mod, std::wstring _msg)
+        void critical(const std::wstring& _mod, const std::wstring& _msg)
         {
             critical(converter.to_bytes(_mod), converter.to_bytes(_msg));
         }
@@ -416,7 +416,7 @@ namespace FourtyTwo
         * Create a common format log line
         * Note: There might be a better way to produce UTF8 from ANSI text? This is "expensive".
         */
-        inline std::string makeLogLine(std::string _level, std::string _module, std::string _message)
+        static inline std::string makeLogLine(const std::string& _level, const std::string& _module, const std::string& _message)
         {
             std::stringstream ss;
             ss << "" << currentDateTime() << "  <" << _level << ">  " + _module + ":  " << _message << "\n";
