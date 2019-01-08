@@ -47,34 +47,34 @@ struct FunctionParams
 };
 
 /**
-* Template struct containing thread function and parameters
+* Class containing thread function and parameters
 */
 class ThreadData
 {
 public:
     ThreadData()
-        : m_function_params()
+        : m_functionParams()
     {};
     virtual ~ThreadData() {};
 
     void setThreadFunction(const std::function<void(FunctionParams &)>& f)
     {
-        m_function_name = f;
+        m_functionName = f;
     }
 
     void setThreadFunctionParams(FunctionParams p)
     {
-        m_function_params = p;
+        m_functionParams = p;
     }
 
     void executeFunction()
     {
-        m_function_name(m_function_params);
+        m_functionName(m_functionParams);
     }
 
 private:
-    std::function<void(FunctionParams &)> m_function_name;
-    FunctionParams m_function_params;
+    std::function<void(FunctionParams &)> m_functionName;
+    FunctionParams m_functionParams;
 };
 
 
@@ -96,20 +96,20 @@ public:
         {
             // Get the work to be done
             {
-                std::unique_lock<std::mutex> lock(m_threadPool.queue_mutex);
+                std::unique_lock<std::mutex> lock(m_threadPool.m_queueMutex);
 
-                while (!m_threadPool.stop && m_threadPool.taskQueue.empty())
+                while (!m_threadPool.m_stop && m_threadPool.m_taskQueue.empty())
                 {
-                    m_threadPool.condition.wait(lock);
+                    m_threadPool.m_condition.wait(lock);
                 }
 
-                if (m_threadPool.stop)
+                if (m_threadPool.m_stop)
                 {
                     return;
                 }
 
-                task = m_threadPool.taskQueue.front();
-                m_threadPool.taskQueue.pop();
+                task = m_threadPool.m_taskQueue.front();
+                m_threadPool.m_taskQueue.pop();
             }
 
             // Do the work
@@ -129,40 +129,40 @@ template<typename T>
 class ThreadPool
 {
 public:
-    explicit ThreadPool(size_t _threads) : stop(false)
+    explicit ThreadPool(size_t _threads) : m_stop(false)
     {
         for (size_t i = 0; i < _threads; ++i)
         {
-            workers.push_back(std::thread(Worker<T>(*this)));
+            m_workers.push_back(std::thread(Worker<T>(*this)));
         }
     }
 
     ~ThreadPool()
     {
-        stop = true;
-        condition.notify_all();
-        for (size_t i = 0; i < workers.size(); ++i)
+        m_stop = true;
+        m_condition.notify_all();
+        for (size_t i = 0; i < m_workers.size(); ++i)
         {
-            workers[i].join();
+            m_workers[i].join();
         }
     }
 
     void enqueue(T _taskItem)
     {
         {
-            std::unique_lock<std::mutex> lock(queue_mutex);
-            taskQueue.push(_taskItem);
+            std::unique_lock<std::mutex> lock(m_queueMutex);
+            m_taskQueue.push(_taskItem);
         }
-        condition.notify_one();
+        m_condition.notify_one();
     }
 
 private:
     template<class T> friend class Worker;
-    std::vector<std::thread> workers;
-    std::queue<T> taskQueue;
-    std::mutex queue_mutex;
-    std::condition_variable condition;
-    bool stop;
+    std::vector<std::thread> m_workers;
+    std::queue<T> m_taskQueue;
+    std::mutex m_queueMutex;
+    std::condition_variable m_condition;
+    bool m_stop;
 };
 
 } // end namespace Common
