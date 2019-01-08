@@ -1,6 +1,10 @@
 #include <iostream>
 #include <bitset>
-//#include <Windows.h>
+
+#include <vector>
+#include <string>
+
+#include <cstdio>
 
 typedef unsigned char    BYTE;
 typedef unsigned short   WORD;
@@ -94,6 +98,7 @@ int main()
     printf("sizeof(long) = %d\n", sizeof(long));
     printf("sizeof(int) = %d\n", sizeof(int));
     printf("sizeof(float) = %d\n", sizeof(float));
+
 
     return 0;
 }
