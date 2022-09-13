@@ -20,9 +20,10 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{05D50835-5106-478F-9F86-000000000005}</ProjectGuid>
-    <RootNamespace>FizzBuzz</RootNamespace>
+    <ProjectGuid>{05D50835-5106-478F-9F86-000000000007}</ProjectGuid>
+    <RootNamespace>cpp-code-snippets</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>ThreadPool</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -85,7 +86,6 @@
     <OutDir>$(SolutionDir)..\build\bin\$(ProjectName)\$(PlatformTarget)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\build\gen\$(ProjectName)\$(PlatformTarget)\$(Configuration)\</IntDir>
   </PropertyGroup>
-  <PropertyGroup />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
@@ -131,7 +131,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\FizzBuzz\main.cpp" />
+    <ClCompile Include="..\Threading\main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
