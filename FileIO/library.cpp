@@ -1,16 +1,17 @@
-#include <cstdlib>
-#include "FileIO.hpp"
 #include "library.hpp"
+#include "FileIO.hpp"
+#include <cstdlib>
 
 #ifdef COPYLIBRARY
 
 using namespace Uplinkzero;
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-    FILEIO_ERR CopyFile(const char * _src, const char * _dest)
+    FILEIO_ERR CopyFile(const char *_src, const char *_dest)
     {
         FileIO sourceFile(_src);
         FileIO destinationFile(_dest, true, false);
@@ -30,8 +31,9 @@ extern "C" {
 
         bool done = false;
 
-        do {
-            BYTE * buffer = reinterpret_cast<BYTE *>(malloc(nextReadSz));
+        do
+        {
+            BYTE *buffer = reinterpret_cast<BYTE *>(malloc(nextReadSz));
             if (buffer == nullptr)
                 return ERR_NOMEM;
 

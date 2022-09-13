@@ -1,12 +1,10 @@
-#include <cstdlib>
 #include "FileIO.hpp"
 #include "library.hpp"
+#include <cstdlib>
 
 #ifndef COPYLIBRARY
 
-using namespace Uplinkzero;
-
-int main(int argc, char ** argv)
+int main(int argc, char **argv)
 {
     if (argc < 3)
     {
@@ -14,8 +12,8 @@ int main(int argc, char ** argv)
         return 1;
     }
 
-    FileIO sourceFile(argv[1]);
-    FileIO destinationFile(argv[2], true, false);
+    Uplinkzero::FileIO sourceFile(argv[1]);
+    Uplinkzero::FileIO destinationFile(argv[2], true, false);
 
     size_t srcSz = sourceFile.GetFileSize();
     size_t readSz = 0;
@@ -29,7 +27,7 @@ int main(int argc, char ** argv)
         nextReadSz = srcSz;
 
     bool done = false;
-    BYTE * buffer = reinterpret_cast<BYTE *>(malloc(nextReadSz));
+    BYTE *buffer = reinterpret_cast<BYTE *>(malloc(nextReadSz));
     if (buffer == nullptr)
     {
         printf("No memory!\n");
@@ -37,8 +35,9 @@ int main(int argc, char ** argv)
     }
     currentBufSz = nextReadSz;
 
-    do {
-        
+    do
+    {
+
         if (nextReadSz != currentBufSz)
         {
             free(buffer);
@@ -52,7 +51,7 @@ int main(int argc, char ** argv)
 
         sourceFile.ReadBlock(nextReadSz, buffer);
         dstSz += destinationFile.WriteBlock(nextReadSz, buffer);
-        
+
         if (srcSz == dstSz)
         {
             done = true;
@@ -89,4 +88,3 @@ int main(int argc, char ** argv)
 }
 
 #endif // COPYLIBRARY
-
