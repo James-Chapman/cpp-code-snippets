@@ -1,6 +1,4 @@
 #pragma once
-#ifndef COPYFILELIBRARY_HPP
-#define COPYFILELIBRARY_HPP
 
 typedef enum _FILEIO_ERR
 {
@@ -12,14 +10,17 @@ typedef enum _FILEIO_ERR
 
 #define MAX_BUFFER_SIZE 0x1000 // 4096
 
+#ifdef COPYLIBRARY
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-    FILEIO_ERR CopyFile(const char * _src, const char * _dest);
+    FILEIO_ERR CopyFile(const char *_src, const char *_dest);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // COPYFILELIBRARY_HPP
+#endif
