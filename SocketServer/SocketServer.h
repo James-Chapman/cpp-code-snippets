@@ -6,12 +6,11 @@
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string>
 #include <thread>
 #include <vector>
-
-#include <stdio.h>
-#include <stdlib.h>
 #include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -25,7 +24,7 @@
 
 class SocketServer
 {
-public:
+  public:
     SocketServer()
         : m_listenSocket{INVALID_SOCKET}, m_resultAddrInfo{nullptr}, m_result{0}, m_sendResult{0}, m_shutdown{false}
     {
@@ -61,7 +60,7 @@ public:
         ::WSACleanup();
     }
 
-    void Receive(SOCKET &socket, std::string &recvBuf, size_t bufLen)
+    void Receive(SOCKET& socket, std::string& recvBuf, size_t bufLen)
     {
         int recvBytes{0};
         int sentBytes{0};
@@ -88,7 +87,7 @@ public:
 
         do
         {
-            recvBytes = ::recv(socket, const_cast<char *>(recvBuf.data()), bufLen, 0);
+            recvBytes = ::recv(socket, const_cast<char*>(recvBuf.data()), bufLen, 0);
             if (recvBytes > 0)
             {
                 printf("Bytes received: %d\n", recvBytes);
@@ -109,7 +108,8 @@ public:
     void Listen(int threads)
     {
         // Create a SOCKET for the server to listen for client connections.
-        m_listenSocket = ::socket(m_resultAddrInfo->ai_family, m_resultAddrInfo->ai_socktype, m_resultAddrInfo->ai_protocol);
+        m_listenSocket =
+            ::socket(m_resultAddrInfo->ai_family, m_resultAddrInfo->ai_socktype, m_resultAddrInfo->ai_protocol);
         if (m_listenSocket == INVALID_SOCKET)
         {
             std::stringstream ss;
@@ -136,65 +136,68 @@ public:
         // sping up 10 listening threads
         for (int i = 0; i < threads; ++i)
         {
-            clientConnectionThreads.push_back(std::thread([this]()
-                                                          {
-                    m_result = ::listen(m_listenSocket, SOMAXCONN);
-                    if (m_result == SOCKET_ERROR)
+            clientConnectionThreads.push_back(std::thread([this]() {
+                m_result = ::listen(m_listenSocket, SOMAXCONN);
+                if (m_result == SOCKET_ERROR)
+                {
+                    std::stringstream ss;
+                    ss << "listen failed with error: " << ::WSAGetLastError();
+                    ::closesocket(m_listenSocket);
+                    ::WSACleanup();
+                    throw std::runtime_error{ss.str()};
+                }
+
+                while (!m_shutdown)
+                {
+                    struct sockaddr_in clientAddrInfo
                     {
-                        std::stringstream ss;
-                        ss << "listen failed with error: " << ::WSAGetLastError();
-                        ::closesocket(m_listenSocket);
-                        ::WSACleanup();
-                        throw std::runtime_error{ ss.str() };
+                        0
+                    };
+                    socklen_t sockLen = sizeof(clientAddrInfo);
+                    auto sock = ::accept(m_listenSocket, reinterpret_cast<sockaddr*>(&clientAddrInfo), &sockLen);
+
+                    char da[32];
+                    auto ip = inet_ntop(clientAddrInfo.sin_family, &clientAddrInfo.sin_addr, da, 32);
+                    printf("Accepted Connection from: %s\n", ip);
+
+                    try
+                    {
+                        std::string recvBuf;
+                        recvBuf.reserve(DEFAULT_BUFLEN);
+                        // Accept a client socket
+
+                        if (sock == INVALID_SOCKET)
+                        {
+                            std::stringstream ss;
+                            ss << "accept failed with error: " << ::WSAGetLastError();
+                            ::closesocket(m_listenSocket);
+                            ::WSACleanup();
+                            throw std::runtime_error{ss.str()};
+                        }
+
+                        this->Receive(sock, recvBuf, DEFAULT_BUFLEN);
+
+                        // cleanup
+                        ::closesocket(sock);
                     }
 
-                    while (!m_shutdown)
+                    catch (const std::exception& e)
                     {
-                        struct sockaddr_in clientAddrInfo { 0 };
-                        socklen_t sockLen = sizeof(clientAddrInfo);
-                        auto sock = ::accept(m_listenSocket, reinterpret_cast<sockaddr*>(&clientAddrInfo), &sockLen);
+                        std::cerr << e.what() << '\n';
 
-                        char da[32];
-                        auto ip = inet_ntop(clientAddrInfo.sin_family, &clientAddrInfo.sin_addr, da, 32);
-                        printf("Accepted Connection from: %s\n", ip);
-
-                        try
+                        // shutdown the connection since we're done
+                        m_result = ::shutdown(sock, SD_SEND);
+                        if (m_result == SOCKET_ERROR)
                         {
-                            std::string recvBuf;
-                            recvBuf.reserve(DEFAULT_BUFLEN);
-                            // Accept a client socket
-
-                            if (sock == INVALID_SOCKET)
-                            {
-                                std::stringstream ss;
-                                ss << "accept failed with error: " << ::WSAGetLastError();
-                                ::closesocket(m_listenSocket);
-                                ::WSACleanup();
-                                throw std::runtime_error{ ss.str() };
-                            }
-
-                            this->Receive(sock, recvBuf, DEFAULT_BUFLEN);
-
-                            // cleanup
+                            printf("shutdown failed with error: %d\n", ::WSAGetLastError());
                             ::closesocket(sock);
+                            ::WSACleanup();
                         }
+                    }
 
-                        catch (const std::exception& e)
-                        {
-                            std::cerr << e.what() << '\n';
-
-                            // shutdown the connection since we're done
-                            m_result = ::shutdown(sock, SD_SEND);
-                            if (m_result == SOCKET_ERROR)
-                            {
-                                printf("shutdown failed with error: %d\n", ::WSAGetLastError());
-                                ::closesocket(sock);
-                                ::WSACleanup();
-                            }
-                        }
-
-                        ::closesocket(sock);
-                    } }));
+                    ::closesocket(sock);
+                }
+            }));
         }
     }
 
@@ -206,18 +209,18 @@ public:
         ::closesocket(m_listenSocket);
         ::WSACleanup();
 
-        for (auto &t : clientConnectionThreads)
+        for (auto& t : clientConnectionThreads)
         {
             t.join();
         }
     }
 
-private:
+  private:
     WSADATA m_wsaData;
     SOCKET m_listenSocket;
     std::vector<std::thread> clientConnectionThreads;
 
-    struct addrinfo *m_resultAddrInfo;
+    struct addrinfo* m_resultAddrInfo;
     struct addrinfo m_hintsAddrInfo;
 
     int m_result;

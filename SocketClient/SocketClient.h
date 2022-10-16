@@ -4,11 +4,10 @@
 
 #include <sstream>
 #include <stdexcept>
-#include <string>
-#include <thread>
-
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
+#include <thread>
 #include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -22,7 +21,7 @@
 
 class SocketClient
 {
-public:
+  public:
     SocketClient() : m_result{0}
     {
         // Initialize Winsock
@@ -57,7 +56,7 @@ public:
 
         SOCKET sock;
         // Attempt to connect to an address until one succeeds
-        for (struct addrinfo *ptr = m_resultAddrInfo; ptr != NULL; ptr = ptr->ai_next)
+        for (struct addrinfo* ptr = m_resultAddrInfo; ptr != NULL; ptr = ptr->ai_next)
         {
             // Create a SOCKET for connecting to server
             sock = ::socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
@@ -89,7 +88,7 @@ public:
         return sock;
     }
 
-    void Send(SOCKET sock, std::string &buf, size_t bufLen)
+    void Send(SOCKET sock, std::string& buf, size_t bufLen)
     {
         // Send an initial buffer
         m_result = ::send(sock, buf.c_str(), bufLen, 0);
@@ -103,10 +102,10 @@ public:
         printf("Bytes Sent: %ld\n", m_result);
     }
 
-    void Receive(SOCKET sock, std::string &buf, size_t bufLen)
+    void Receive(SOCKET sock, std::string& buf, size_t bufLen)
     {
         // Receive a hello message.
-        m_result = ::recv(sock, const_cast<char *>(buf.data()), bufLen, 0);
+        m_result = ::recv(sock, const_cast<char*>(buf.data()), bufLen, 0);
         if (m_result > 0)
         {
             printf("Bytes received: %d\n", m_result);
@@ -129,9 +128,9 @@ public:
         }
     }
 
-private:
+  private:
     WSADATA m_wsaData;
-    struct addrinfo *m_resultAddrInfo;
+    struct addrinfo* m_resultAddrInfo;
     struct addrinfo m_hintsAddrInfo;
     int m_result;
 };
