@@ -7,34 +7,35 @@
 
 namespace
 {
-    void add(std::mutex& mtx, int& counter, int i)
+void add(std::mutex& mtx, int& counter, int i)
+{
+    std::lock_guard<std::mutex> lock(mtx);
+    counter += i;
+}
+
+class ThreadWorker
+{
+  public:
+    ThreadWorker()
+    {
+    }
+
+    virtual ~ThreadWorker()
+    {
+    }
+
+    void Add(std::mutex& mtx, int& counter, int i)
     {
         std::lock_guard<std::mutex> lock(mtx);
         counter += i;
     }
+};
 
-    class ThreadWorker
-    {
-    public:
-        ThreadWorker()
-        {}
-
-        virtual ~ThreadWorker()
-        {}
-
-        void Add(std::mutex& mtx, int& counter, int i)
-        {
-            std::lock_guard<std::mutex> lock(mtx);
-            counter += i;
-        }
-
-    };
-
-}
+} // namespace
 
 int main()
 {
-    int counter{ 0 };
+    int counter{0};
     std::mutex nMutex;
     ThreadWorker worker;
     std::vector<std::thread> threadVector;
@@ -51,7 +52,8 @@ int main()
         // Start 10 threads with 'ThreadWorker::Add' class method.
         for (int i = 0; i < 10; i++)
         {
-            threadVector.push_back(std::thread(&ThreadWorker::Add, std::ref(worker), std::ref(nMutex), std::ref(counter), i));
+            threadVector.push_back(
+                std::thread(&ThreadWorker::Add, std::ref(worker), std::ref(nMutex), std::ref(counter), i));
         }
     }
 
@@ -64,7 +66,7 @@ int main()
                     std::lock_guard<std::mutex> lock(nMutex);
                     counter += i;
                 }
-                }));
+            }));
         }
     }
 
@@ -82,15 +84,12 @@ int main()
         }
     }
 
-
     for (auto& thr : threadVector)
     {
         thr.join();
     }
 
-
     std::cout << " counter = " << counter << "\n";
     assert(counter == 180);
     return 0;
 }
-

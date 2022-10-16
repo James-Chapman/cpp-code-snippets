@@ -17,7 +17,7 @@ extern "C"
 {
 #endif
 
-    FILEIO_ERR CopyFile(const char *_src, const char *_dest);
+    FILEIO_ERR CopyFile(const char* _src, const char* _dest);
 
 #ifdef __cplusplus
 }

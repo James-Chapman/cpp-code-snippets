@@ -1,5 +1,7 @@
 #include "library.hpp"
+
 #include "FileIO.hpp"
+
 #include <cstdlib>
 
 #ifdef COPYLIBRARY
@@ -11,7 +13,7 @@ extern "C"
 {
 #endif
 
-    FILEIO_ERR CopyFile(const char *_src, const char *_dest)
+    FILEIO_ERR CopyFile(const char* _src, const char* _dest)
     {
         FileIO sourceFile(_src);
         FileIO destinationFile(_dest, true, false);
@@ -33,7 +35,7 @@ extern "C"
 
         do
         {
-            BYTE *buffer = reinterpret_cast<BYTE *>(malloc(nextReadSz));
+            BYTE* buffer = reinterpret_cast<BYTE*>(malloc(nextReadSz));
             if (buffer == nullptr)
                 return ERR_NOMEM;
 

@@ -4,26 +4,25 @@
 
 int main()
 {
-    //bool fizz = false;
-    //bool buzz = false;
-    //for (int i = 1; i <= 100; ++i)
+    // bool fizz = false;
+    // bool buzz = false;
+    // for (int i = 1; i <= 100; ++i)
     //{
-    //    fizz = false;
-    //    buzz = false;
-    //    if (i % 3 == 0)
-    //        fizz = true;
-    //    if (i % 5 == 0)
-    //        buzz = true;
-    //    if (fizz)
-    //        printf("Fizz");
-    //    if (buzz)
-    //        printf("Buzz");
-    //    if (!fizz && !buzz)
-    //        printf("%d", i);
-    //    printf("\n");
+    //     fizz = false;
+    //     buzz = false;
+    //     if (i % 3 == 0)
+    //         fizz = true;
+    //     if (i % 5 == 0)
+    //         buzz = true;
+    //     if (fizz)
+    //         printf("Fizz");
+    //     if (buzz)
+    //         printf("Buzz");
+    //     if (!fizz && !buzz)
+    //         printf("%d", i);
+    //     printf("\n");
 
     //}
-
 
     std::vector<int> vecJumps;
     printf("vecJumps.size() = %d\n", vecJumps.size());
@@ -42,7 +41,6 @@ int main()
 
     printf("vecJumps.size() = %d\n", vecJumps.size());
     printf("vecJumps.capacity() = %d\n", vecJumps.capacity());
-
 
     std::vector<int>::iterator vecStart1 = vecJumps.begin();
     std::vector<int>::iterator vecStart2 = vecJumps.begin();
