@@ -40,12 +40,12 @@ namespace Common
     class ThreadPool;
 
     /**
-     * Worker - runs in the thread and executes the requested function
+     * ThreadWorker - runs in the thread and executes the requested function
      */
-    class Worker
+    class __ThreadWorker
     {
     public:
-        explicit Worker(ThreadPool& s);
+        explicit __ThreadWorker(ThreadPool& s);
         void operator()();
 
     private:
@@ -62,7 +62,7 @@ namespace Common
         {
             for (size_t i = 0; i < threads; ++i)
             {
-                m_workers.push_back(std::thread(Worker(*this)));
+                m_workers.push_back(std::thread(__ThreadWorker(*this)));
             }
         }
 
@@ -92,7 +92,7 @@ namespace Common
     protected:
     private:
         std::mutex m_queueMutex;
-        friend class Worker;
+        friend class __ThreadWorker;
         std::vector<std::thread> m_workers;
         std::queue<std::function<void()>> m_taskQueue;
         std::condition_variable m_condition;
@@ -100,14 +100,14 @@ namespace Common
     };
 
     /**
-     * Worker implementation
+     * ThreadWorker implementation
      */
 
-    Worker::Worker(ThreadPool& s) : m_threadPool(s)
+    __ThreadWorker::__ThreadWorker(ThreadPool& s) : m_threadPool(s)
     {
     }
 
-    void Worker::operator()()
+    void __ThreadWorker::operator()()
     {
         while (1)
         {

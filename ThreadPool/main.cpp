@@ -21,7 +21,7 @@
  *
  ********************************************************************************/
 
-#include "commonthreadpool.hpp"
+#include "ThreadPool.hpp"
 
 #include <functional>
 #include <iostream>
