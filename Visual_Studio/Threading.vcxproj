@@ -23,7 +23,7 @@
     <ProjectGuid>{05D50835-5106-478F-9F86-000000000007}</ProjectGuid>
     <RootNamespace>cpp-code-snippets</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>ThreadPool</ProjectName>
+    <ProjectName>Threading</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

@@ -25,6 +25,7 @@
 #pragma once
 
 #include <condition_variable>
+#include <functional>
 #include <mutex>
 #include <queue>
 #include <string>
@@ -36,102 +37,36 @@ namespace Uplinkzero
 
 namespace Common
 {
+    class ThreadPool;
 
     /**
-     * Edit this struct to contain required params
+     * Worker - runs in the thread and executes the requested function
      */
-    struct FunctionParams
+    class Worker
     {
-        unsigned long i;
+    public:
+        explicit Worker(ThreadPool& s);
+        void operator()();
+
+    private:
+        ThreadPool& m_threadPool;
     };
 
     /**
-     * Class containing thread function and parameters
+     * Threadpool - a pool of Workers, each in it's own thread
      */
-    class ThreadData
+    class ThreadPool
     {
-      public:
-        ThreadData() : m_functionParams(){};
-        virtual ~ThreadData(){};
-
-        void setThreadFunction(const std::function<void(FunctionParams&)>& f)
+    public:
+        explicit ThreadPool(size_t threads) : m_stop(false)
         {
-            m_functionName = f;
-        }
-
-        void setThreadFunctionParams(FunctionParams p)
-        {
-            m_functionParams = p;
-        }
-
-        void executeFunction()
-        {
-            m_functionName(m_functionParams);
-        }
-
-      private:
-        std::function<void(FunctionParams&)> m_functionName;
-        FunctionParams m_functionParams;
-    };
-
-    template <typename T> class ThreadPool;
-
-    /**
-     * Worker
-     */
-    template <typename T> class Worker
-    {
-      public:
-        explicit Worker(ThreadPool<T>& s) : m_threadPool(s)
-        {
-        }
-        void operator()()
-        {
-            T task;
-            while (1)
+            for (size_t i = 0; i < threads; ++i)
             {
-                // Get the work to be done
-                {
-                    std::unique_lock<std::mutex> lock(m_threadPool.m_queueMutex);
-
-                    while (!m_threadPool.m_stop && m_threadPool.m_taskQueue.empty())
-                    {
-                        m_threadPool.m_condition.wait(lock);
-                    }
-
-                    if (m_threadPool.m_stop)
-                    {
-                        return;
-                    }
-
-                    task = m_threadPool.m_taskQueue.front();
-                    m_threadPool.m_taskQueue.pop();
-                }
-
-                // Do the work
-                task.executeFunction();
+                m_workers.push_back(std::thread(Worker(*this)));
             }
         }
 
-      private:
-        ThreadPool<T>& m_threadPool;
-    };
-
-    /**
-     * Threadpool
-     */
-    template <typename T> class ThreadPool
-    {
-      public:
-        explicit ThreadPool(size_t _threads) : m_stop(false)
-        {
-            for (size_t i = 0; i < _threads; ++i)
-            {
-                m_workers.push_back(std::thread(Worker<T>(*this)));
-            }
-        }
-
-        ~ThreadPool()
+        virtual ~ThreadPool()
         {
             m_stop = true;
             m_condition.notify_all();
@@ -141,24 +76,61 @@ namespace Common
             }
         }
 
-        void enqueue(T _taskItem)
+        ThreadPool(ThreadPool const&) = delete;
+        ThreadPool& operator=(const ThreadPool& rhs) = delete;
+
+        template <typename F, typename... TArgs>
+        void enqueue(F func, TArgs&&... args)
         {
             {
                 std::unique_lock<std::mutex> lock(m_queueMutex);
-                m_taskQueue.push(_taskItem);
+                m_taskQueue.push(std::bind(func, std::forward<TArgs>(args)...));
             }
             m_condition.notify_one();
         }
 
-      private:
-        template <class T> friend class Worker;
-        std::vector<std::thread> m_workers;
-        std::queue<T> m_taskQueue;
+    protected:
+    private:
         std::mutex m_queueMutex;
+        friend class Worker;
+        std::vector<std::thread> m_workers;
+        std::queue<std::function<void()>> m_taskQueue;
         std::condition_variable m_condition;
         bool m_stop;
     };
 
-} // end namespace Common
+    /**
+     * Worker implementation
+     */
 
-} // end namespace Uplinkzero
+    Worker::Worker(ThreadPool& s) : m_threadPool(s)
+    {
+    }
+
+    void Worker::operator()()
+    {
+        while (1)
+        {
+            std::function<void()> task;
+            {
+                std::unique_lock<std::mutex> lock(m_threadPool.m_queueMutex);
+                while (!m_threadPool.m_stop && m_threadPool.m_taskQueue.empty())
+                {
+                    m_threadPool.m_condition.wait(lock);
+                }
+
+                if (m_threadPool.m_stop)
+                {
+                    return;
+                }
+
+                task = m_threadPool.m_taskQueue.front();
+                m_threadPool.m_taskQueue.pop();
+            }
+            task();
+        }
+    }
+
+} // namespace Common
+
+} // namespace Uplinkzero

@@ -24,7 +24,7 @@
 
 class SocketServer
 {
-  public:
+public:
     SocketServer()
         : m_listenSocket{INVALID_SOCKET}, m_resultAddrInfo{nullptr}, m_result{0}, m_sendResult{0}, m_shutdown{false}
     {
@@ -215,7 +215,7 @@ class SocketServer
         }
     }
 
-  private:
+private:
     WSADATA m_wsaData;
     SOCKET m_listenSocket;
     std::vector<std::thread> clientConnectionThreads;

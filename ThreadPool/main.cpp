@@ -27,11 +27,40 @@
 #include <iostream>
 #include <random>
 
-void functionForThreadToRun(Uplinkzero::Common::FunctionParams& p)
+namespace
 {
-    std::cout << "Thread ID: " << std::this_thread::get_id() << " running with parameter: " << p.i << std::endl;
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+int threadFunctionOneParamReturnsInt(int i)
+{
+    std::cout << "Thread ID: " << std::this_thread::get_id() << " running with parameter: " << i << std::endl;
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    return 1;
 }
+
+void threadFunctionOneParam(int i)
+{
+    std::cout << "Thread ID: " << std::this_thread::get_id() << " running with parameter: " << i << std::endl;
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+}
+
+struct Data
+{
+    int i{99};
+    char c{'A'};
+    void print()
+    {
+        std::cout << "Data.print() i=" << i << ", c=" << c << "\n";
+    }
+};
+
+void threadFunctionTwoParams(Data d, double n)
+{
+    std::cout << "Thread ID: " << std::this_thread::get_id() << " Data object and double " << n << "\n";
+    d.print();
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+}
+
+} // namespace
 
 int main()
 {
@@ -40,25 +69,23 @@ int main()
     std::mt19937 urng(rd());
 
     // Create a threadpool with 5 threads
-    ::Uplinkzero::Common::ThreadPool<Uplinkzero::Common::ThreadData> threadPool(5);
-
-    // Pointer to the function we want the threads in the pool to execute
-    auto pFunctionForThreadToRun = std::function<void(Uplinkzero::Common::FunctionParams&)>(functionForThreadToRun);
+    ::Uplinkzero::Common::ThreadPool threadPool(5);
 
     // enque tasks into the threadpool
-    for (int i = 0; i < 1000; i++)
+    for (int i = 0; i < 10; i++)
     {
-        Uplinkzero::Common::FunctionParams params;
-        params.i = urng();
-        Uplinkzero::Common::ThreadData td;
-        td.setThreadFunction(pFunctionForThreadToRun);
-        td.setThreadFunctionParams(params);
-        threadPool.enqueue(td);
+        auto n = urng();
+        threadPool.enqueue(threadFunctionOneParamReturnsInt, n);
+        threadPool.enqueue(threadFunctionOneParam, n);
+        Data d;
+        threadPool.enqueue(threadFunctionTwoParams, d, n);
+        threadPool.enqueue([]() {
+            std::cout << "Thread ID: " << std::this_thread::get_id() << " lambda\n";
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        });
     }
 
-    // sleep for 10 seconds
-    std::this_thread::sleep_for(std::chrono::milliseconds(10000));
-
+    std::this_thread::sleep_for(std::chrono::seconds(10));
     std::cout << "Main thread finished!" << std::endl;
 
     return 0;

@@ -15,7 +15,7 @@ void add(std::mutex& mtx, int& counter, int i)
 
 class ThreadWorker
 {
-  public:
+public:
     ThreadWorker()
     {
     }
