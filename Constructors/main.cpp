@@ -3,7 +3,7 @@
 
 struct Foo
 {
-    Foo()
+    Foo() : data_{ "foo" }
     {
         std::cout << "  Foo default constructor\n";
     }
