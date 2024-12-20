@@ -1,3 +1,6 @@
+Output:
+
+```C++
 Foo f0{};
   Foo default constructor
   0x7ffde0c0dad0: data_: 
@@ -29,4 +32,4 @@ auto f6 = Foo{ "f6" };
 f6 = f5;
   Foo copy assignment
   0x7ffde0c0da10: data_: f3
-
+```
