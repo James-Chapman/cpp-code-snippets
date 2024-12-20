@@ -67,7 +67,7 @@ int main()
     f5.PrintData();
     
     std::cout << "auto f6 = Foo{ \"f6\" };\n";
-    auto f6 = Foo{f6};
+    auto f6 = Foo{ "f6" };
     f6.PrintData();
 
     std::cout << "f6 = f5;\n";
